@@ -1,6 +1,8 @@
-# 日本語 Drilling
+# Language Katas
 
-A Japanese translation practice app with adaptive difficulty and ELO-based progression.
+A language translation practice app with adaptive difficulty and ELO-based progression.
+
+Currently we're only supporting Japanese, but I will update this to be more generic in the near future.
 
 ## Purpose
 
