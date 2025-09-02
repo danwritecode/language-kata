@@ -48,7 +48,16 @@ This application helps users practice Japanese translation skills through an int
    echo "NUXT_OPENAI_KEY=your_openai_api_key_here" > .env
    ```
 
-4. Start the development server:
+4. **Configure OpenAI Responses API**:
+   This project uses OpenAI's Responses API with a custom prompt. You'll need to:
+   - Create your own prompt in the OpenAI platform
+   - Copy the prompt content from `/prompt` file in this repository
+   - Update the prompt ID in `/server/api/v1/eval/index.post.ts` (line 19):
+     ```typescript
+     "id": "your_prompt_id_here",
+     ```
+
+5. Start the development server:
    ```bash
    bun dev
    ```
