@@ -1,21 +1,25 @@
 <template>
-  <div class="flex justify-center min-h-screen pt-20">
+  <div class="flex justify-center min-h-screen pt-20 bg-stone-50 dark:bg-stone-900 transition-colors">
     <div class="max-w-xl w-full px-6">
+      <!-- Theme Toggle -->
+      <div class="absolute top-6 right-6">
+        <ThemeToggle />
+      </div>
       <!-- Header info -->
       <div class="mb-14">
         <div class="flex items-center justify-between mb-4">
-          <p class="text-gray-600 text-sm">
+          <p class="text-gray-600 dark:text-gray-400 text-sm">
             Subject: <span class="font-medium">{{ currentSubject }}</span>
           </p>
-          <p class="text-gray-600 text-sm">
+          <p class="text-gray-600 dark:text-gray-400 text-sm">
             Elo: <span class="font-medium">{{ currentElo }}</span>
           </p>
         </div>
         
         <!-- Progress Speed Control -->
         <div class="flex items-center gap-4">
-          <span class="text-sm text-gray-600">Progress Speed:</span>
-          <div class="flex rounded-lg bg-gray-100 p-1" role="radiogroup">
+          <span class="text-sm text-gray-600 dark:text-gray-400">Progress Speed:</span>
+          <div class="flex rounded-lg bg-stone-200 dark:bg-stone-800 p-1" role="radiogroup">
             <button
               v-for="speed in progressSpeeds"
               :key="speed.value"
@@ -23,8 +27,8 @@
               :class="[
                 'px-4 py-1.5 text-sm font-medium rounded-md transition-all',
                 scalingFactor === speed.value
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-white dark:bg-stone-700 text-gray-900 dark:text-gray-100 shadow-sm'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
               ]"
               :title="speed.description"
               role="radio"
@@ -38,26 +42,26 @@
 
       <!-- Loading state for initial load only -->
       <div v-if="initialLoading" class="text-center py-12">
-        <p class="text-gray-600">Loading exercise...</p>
+        <p class="text-gray-600 dark:text-gray-400">Loading exercise...</p>
       </div>
 
       <!-- Exercise content -->
       <div v-else-if="currentExercise">
         <!-- English sentence -->
-        <p class="text-2xl text-gray-700 font-medium mb-2">
+        <p class="text-2xl text-gray-700 dark:text-gray-300 font-medium mb-2">
           {{ currentExercise.sentence_en }}
         </p>
 
         <!-- Pattern focus -->
         <div class="mb-8">
-          <p class="text-xs text-gray-500">
+          <p class="text-xs text-gray-500 dark:text-gray-400">
             Focus: {{ currentExercise.pattern_focus.join(', ') }}
           </p>
         </div>
 
         <!-- Answer input -->
         <div class="mt-10">
-          <label for="answer" class="block text-sm/6 font-medium text-gray-900">{{ currentLanguage!.translationLabel }}</label>
+          <label for="answer" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-100">{{ currentLanguage!.translationLabel }}</label>
           <div class="mt-2">
             <textarea 
               id="answer"
@@ -65,7 +69,7 @@
               :disabled="showFeedback"
               @keydown="handleKeydown"
               rows="4" 
-              class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-orange-600 sm:text-sm/6 disabled:bg-gray-50 disabled:text-gray-500"
+              class="block w-full rounded-md bg-white dark:bg-stone-800 px-3 py-1.5 text-base text-gray-900 dark:text-gray-100 outline outline-1 -outline-offset-1 outline-stone-300 dark:outline-stone-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-stone-600 dark:focus:outline-stone-400 sm:text-sm/6 disabled:bg-stone-50 dark:disabled:bg-stone-700 disabled:text-gray-500 dark:disabled:text-gray-400"
               placeholder="Type your translation here..."
             ></textarea>
           </div>
@@ -78,7 +82,7 @@
             @click="submitAnswer"
             :disabled="!userAnswer.trim() || submitting"
             type="button" 
-            class="rounded-md bg-orange-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="rounded-md bg-stone-600 dark:bg-stone-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-stone-500 dark:hover:bg-stone-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-600 dark:focus-visible:outline-stone-400 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span v-if="submitting">Submitting...</span>
             <span v-else>Submit</span>
@@ -88,7 +92,7 @@
             v-else
             @click="nextExercise"
             type="button" 
-            class="rounded-md bg-orange-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
+            class="rounded-md bg-stone-600 dark:bg-stone-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-stone-500 dark:hover:bg-stone-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-600 dark:focus-visible:outline-stone-400"
           >
             Next Exercise
           </button>
@@ -96,28 +100,28 @@
           <button 
             @click="goBack"
             type="button" 
-            class="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+            class="rounded-md bg-white dark:bg-stone-800 px-3.5 py-2.5 text-sm font-semibold text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-stone-300 dark:ring-stone-600 hover:bg-stone-50 dark:hover:bg-stone-700"
           >
             Change Subject
           </button>
         </div>
 
         <!-- Feedback section below buttons -->
-        <div v-if="showFeedback" class="mt-6 p-4 rounded-lg bg-gray-50 border border-gray-200">
+        <div v-if="showFeedback" class="mt-6 p-4 rounded-lg bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700">
           <div class="mb-3">
             <span 
               class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium"
-              :class="currentExercise.is_correct ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'"
+              :class="currentExercise.is_correct ? 'bg-green-50 dark:bg-green-900 text-green-700 dark:text-green-300' : 'bg-red-50 dark:bg-red-900 text-red-700 dark:text-red-300'"
             >
               {{ currentExercise.is_correct ? 'Correct!' : 'Incorrect' }}
             </span>
           </div>
           
-          <p class="text-sm text-gray-700 mb-2">{{ currentExercise.feedback }}</p>
+          <p class="text-sm text-gray-700 dark:text-gray-300 mb-2">{{ currentExercise.feedback }}</p>
           
-          <div v-if="!currentExercise.is_correct" class="mt-3 pt-3 border-t border-gray-200">
-            <p class="text-sm text-gray-600">Correct answer:</p>
-            <p class="text-sm font-medium text-gray-900">{{ currentExercise.correct_answer }}</p>
+          <div v-if="!currentExercise.is_correct" class="mt-3 pt-3 border-t border-stone-200 dark:border-stone-600">
+            <p class="text-sm text-gray-600 dark:text-gray-400">Correct answer:</p>
+            <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ currentExercise.correct_answer }}</p>
           </div>
         </div>
       </div>
