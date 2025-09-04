@@ -2,8 +2,8 @@
   <div class="flex items-center justify-center h-screen">
     <div class="max-w-xl w-full px-6">
       <div class="text-center">
-        <h1 class="text-4xl font-bold text-gray-900 mb-2">日本語 Drilling</h1>
-        <p class="text-lg text-gray-600 mb-12">Practice Japanese translations with adaptive difficulty</p>
+        <h1 class="text-4xl font-bold text-gray-900 mb-2">Language Drilling</h1>
+        <p class="text-lg text-gray-600 mb-12">Practice translations with adaptive difficulty</p>
       </div>
 
       <div class="space-y-6">
@@ -11,6 +11,21 @@
         <div>
           <h2 class="text-xl font-semibold text-gray-900 mb-4">Start New Session</h2>
           <div class="space-y-6">
+            <div>
+              <label for="language" class="block text-sm font-medium text-gray-900 mb-2">
+                Target Language
+              </label>
+              <select
+                id="language"
+                v-model="selectedLanguage"
+                class="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-orange-600"
+              >
+                <option v-for="lang in languages" :key="lang.code" :value="lang.code">
+                  {{ lang.name }} ({{ lang.nativeName }})
+                </option>
+              </select>
+            </div>
+
             <div>
               <label for="subject" class="block text-sm font-medium text-gray-900 mb-2">
                 Choose a subject (optional)
@@ -104,9 +119,11 @@
 <script setup lang="ts">
 import type { Session } from '~/types/session';
 import { getAllSessions, deleteSession } from '~/utils/session';
+import { languages, defaultLanguage } from '~/utils/languages';
 
 const subject = ref('');
 const startingElo = ref(1000);
+const selectedLanguage = ref(defaultLanguage.code);
 const savedSessions = ref<Session[]>([]);
 const router = useRouter();
 
@@ -116,12 +133,13 @@ onMounted(() => {
 });
 
 const startPractice = async () => {
-  // Navigate to practice page with subject as query param
+  // Navigate to practice page with subject and language as query params
   await router.push({
     path: '/practice',
     query: {
       subject: subject.value || undefined,
-      elo: startingElo.value.toString()
+      elo: startingElo.value.toString(),
+      lang: selectedLanguage.value
     }
   });
 };
@@ -133,6 +151,7 @@ const continueSession = async (session: Session) => {
     query: {
       subject: session.subject,
       elo: session.currentElo.toString(),
+      lang: session.targetLanguage || defaultLanguage.code,
       session: session.id
     }
   });

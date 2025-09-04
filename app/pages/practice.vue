@@ -57,7 +57,7 @@
 
         <!-- Answer input -->
         <div class="mt-10">
-          <label for="answer" class="block text-sm/6 font-medium text-gray-900">日本語訳</label>
+          <label for="answer" class="block text-sm/6 font-medium text-gray-900">{{ currentLanguage!.translationLabel }}</label>
           <div class="mt-2">
             <textarea 
               id="answer"
@@ -66,7 +66,7 @@
               @keydown="handleKeydown"
               rows="4" 
               class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-orange-600 sm:text-sm/6 disabled:bg-gray-50 disabled:text-gray-500"
-              placeholder="Type your Japanese translation here..."
+              placeholder="Type your translation here..."
             ></textarea>
           </div>
         </div>
@@ -117,7 +117,7 @@
           
           <div v-if="!currentExercise.is_correct" class="mt-3 pt-3 border-t border-gray-200">
             <p class="text-sm text-gray-600">Correct answer:</p>
-            <p class="text-sm font-medium text-gray-900">{{ currentExercise.correct_answer_ja }}</p>
+            <p class="text-sm font-medium text-gray-900">{{ currentExercise.correct_answer }}</p>
           </div>
         </div>
       </div>
@@ -129,6 +129,7 @@
 import type { KataRequest, KataResponse } from '~/types/llm/kata';
 import type { Session } from '~/types/session';
 import { generateSessionId, generateSessionName, saveSession, getSession } from '~/utils/session';
+import { getLanguageByCode, defaultLanguage } from '~/utils/languages';
 
 const route = useRoute();
 const router = useRouter();
@@ -136,6 +137,8 @@ const router = useRouter();
 // State
 const currentElo = ref(Number(route.query.elo) || 1000);
 const currentSubject = ref(route.query.subject as string || 'Mixed');
+const currentLanguageCode = ref(route.query.lang as string || defaultLanguage!.code);
+const currentLanguage = computed(() => getLanguageByCode(currentLanguageCode.value) || defaultLanguage);
 const currentExercise = ref<KataResponse | null>(null);
 const nextExerciseData = ref<KataResponse | null>(null);
 const userAnswer = ref('');
@@ -175,6 +178,7 @@ const initializeSession = () => {
       sessionId.value = urlSessionId;
       currentElo.value = session.currentElo;
       currentSubject.value = session.subject;
+      currentLanguageCode.value = session.targetLanguage || defaultLanguage!.code;
       scalingFactor.value = session.eloScalingFactor || 1.0;
       // Load previous exercises but exclude the last one (for fresh start)
       previousExercises.value = session.previousExercises.slice(0, -1);
@@ -200,6 +204,7 @@ const fetchExercise = async () => {
   try {
     const request: KataRequest = {
       current_elo: currentElo.value,
+      target_language: currentLanguageCode.value,
       subject_hint: route.query.subject as string || undefined,
       elo_scaling_factor: scalingFactor.value,
       previous_exercises: previousExercises.value
@@ -228,8 +233,9 @@ const submitAnswer = async () => {
   try {
     const request: KataRequest = {
       current_elo: currentElo.value,
+      target_language: currentLanguageCode.value,
       subject_hint: route.query.subject as string || undefined,
-      user_answer_ja: userAnswer.value,
+      user_answer: userAnswer.value,
       source_sentence_en: currentExercise.value.sentence_en,
       elo_scaling_factor: scalingFactor.value,
       previous_exercises: previousExercises.value
@@ -251,7 +257,7 @@ const submitAnswer = async () => {
       ...currentExercise.value,
       is_correct: response.is_correct,
       feedback: response.feedback,
-      correct_answer_ja: response.correct_answer_ja
+      correct_answer: response.correct_answer
     };
     
     // Add current exercise to previous exercises (keep last 20)
@@ -271,6 +277,7 @@ const submitAnswer = async () => {
       id: sessionId.value,
       name: generateSessionName(currentSubject.value),
       subject: currentSubject.value,
+      targetLanguage: currentLanguageCode.value,
       currentElo: response.elo,
       eloScalingFactor: scalingFactor.value,
       previousExercises: previousExercises.value,
@@ -283,7 +290,8 @@ const submitAnswer = async () => {
     await router.replace({
       query: {
         ...route.query,
-        elo: response.elo.toString()
+        elo: response.elo.toString(),
+        lang: currentLanguageCode.value
       }
     });
   } catch (error) {

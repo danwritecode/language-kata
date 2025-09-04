@@ -5,5 +5,5 @@ export interface KataResponse {
   pattern_focus: string[];
   is_correct: boolean | null;
   feedback: string | null;
-  correct_answer_ja: string | null;
+  correct_answer: string | null; // Changed from correct_answer_ja
 }
