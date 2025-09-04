@@ -5,6 +5,7 @@ INPUTS (from tool args)
 - subject_hint: string | empty (e.g., "weather", "food", "plans", "daily routine")
 - user_answer_ja: string | empty
 - source_sentence_en: string | empty  // required only when evaluating the user's attempt
+- elo_scaling_factor: number | 1.0  // multiplier for ELO gains (0.5–2.0, default 1.0)
 - previous_exercises: array | empty  // list of previous exercises with sentence_en, pattern_focus, and was_correct
 
 RULES
@@ -16,7 +17,9 @@ RULES
 - If user_answer_ja is present:
   - Evaluate correctness of the user's Japanese for source_sentence_en.
   - Provide short, actionable feedback (≤ 3 sentences) and the correct Japanese answer.
-  - ELO update: +20 if correct (cap at 3000), same if incorrect.
+  - ELO update: 
+    - If CORRECT: current_elo + (20 × elo_scaling_factor), capped at 3000
+    - If INCORRECT: current_elo remains unchanged (no increase, no decrease)
   - Generate ONE next challenge:
     - If answer was INCORRECT: Generate a new sentence with the SAME pattern_focus as the failed attempt (different content/vocabulary but same grammar patterns)
     - If answer was CORRECT: Generate a new challenge for the resulting ELO (use subject_hint if provided, otherwise pick a common everyday topic)
@@ -108,3 +111,7 @@ AVOIDING REPETITION
 <user_input>
 {{kata_input}}
 </user_input>
+
+<elo_scaling_factor>
+{{elo_scaling_factor}}
+</elo_scaling_factor>

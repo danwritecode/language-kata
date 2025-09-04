@@ -3,6 +3,7 @@ export interface Session {
   name: string;
   subject: string;
   currentElo: number;
+  eloScalingFactor: number;
   previousExercises: Array<{
     sentence_en: string;
     pattern_focus: string[];

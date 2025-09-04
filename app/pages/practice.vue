@@ -1,14 +1,39 @@
 <template>
-  <div class="flex items-center justify-center min-h-screen py-8">
+  <div class="flex justify-center min-h-screen pt-20">
     <div class="max-w-xl w-full px-6">
       <!-- Header info -->
-      <div class="flex items-center justify-between mb-8">
-        <p class="text-gray-600 text-sm">
-          Subject: <span class="font-medium">{{ currentSubject }}</span>
-        </p>
-        <p class="text-gray-600 text-sm">
-          Elo: <span class="font-medium">{{ currentElo }}</span>
-        </p>
+      <div class="mb-14">
+        <div class="flex items-center justify-between mb-4">
+          <p class="text-gray-600 text-sm">
+            Subject: <span class="font-medium">{{ currentSubject }}</span>
+          </p>
+          <p class="text-gray-600 text-sm">
+            Elo: <span class="font-medium">{{ currentElo }}</span>
+          </p>
+        </div>
+        
+        <!-- Progress Speed Control -->
+        <div class="flex items-center gap-4">
+          <span class="text-sm text-gray-600">Progress Speed:</span>
+          <div class="flex rounded-lg bg-gray-100 p-1" role="radiogroup">
+            <button
+              v-for="speed in progressSpeeds"
+              :key="speed.value"
+              @click="scalingFactor = speed.value"
+              :class="[
+                'px-4 py-1.5 text-sm font-medium rounded-md transition-all',
+                scalingFactor === speed.value
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              ]"
+              :title="speed.description"
+              role="radio"
+              :aria-checked="scalingFactor === speed.value"
+            >
+              {{ speed.label }}
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Loading state for initial load only -->
@@ -123,6 +148,15 @@ const previousExercises = ref<Array<{
   was_correct?: boolean;
 }>>([]);
 const sessionId = ref<string>('');
+const scalingFactor = ref(1.0);
+
+// Progress speed options
+const progressSpeeds = [
+  { label: 'Slow', value: 0.5, description: '+10 ELO per correct answer' },
+  { label: 'Normal', value: 1.0, description: '+20 ELO per correct answer' },
+  { label: 'Fast', value: 1.5, description: '+30 ELO per correct answer' },
+  { label: 'Aggressive', value: 2.0, description: '+40 ELO per correct answer' }
+];
 
 // Initialize with first exercise
 onMounted(() => {
@@ -141,6 +175,7 @@ const initializeSession = () => {
       sessionId.value = urlSessionId;
       currentElo.value = session.currentElo;
       currentSubject.value = session.subject;
+      scalingFactor.value = session.eloScalingFactor || 1.0;
       // Load previous exercises but exclude the last one (for fresh start)
       previousExercises.value = session.previousExercises.slice(0, -1);
       return;
@@ -166,6 +201,7 @@ const fetchExercise = async () => {
     const request: KataRequest = {
       current_elo: currentElo.value,
       subject_hint: route.query.subject as string || undefined,
+      elo_scaling_factor: scalingFactor.value,
       previous_exercises: previousExercises.value
     };
 
@@ -195,6 +231,7 @@ const submitAnswer = async () => {
       subject_hint: route.query.subject as string || undefined,
       user_answer_ja: userAnswer.value,
       source_sentence_en: currentExercise.value.sentence_en,
+      elo_scaling_factor: scalingFactor.value,
       previous_exercises: previousExercises.value
     };
 
@@ -235,6 +272,7 @@ const submitAnswer = async () => {
       name: generateSessionName(currentSubject.value),
       subject: currentSubject.value,
       currentElo: response.elo,
+      eloScalingFactor: scalingFactor.value,
       previousExercises: previousExercises.value,
       lastUpdated: new Date().toISOString(),
       exercisesCompleted: previousExercises.value.length
