@@ -7,61 +7,62 @@
       </div>
       <!-- Header info -->
       <div class="mb-14">
-        <div class="flex items-center justify-between mb-4">
-          <p class="text-gray-600 dark:text-gray-400 text-sm">
-            Subject: <span class="font-medium">{{ currentSubject }}</span>
-          </p>
-          <p class="text-gray-600 dark:text-gray-400 text-sm">
-            Elo: <span class="font-medium">{{ currentElo }}</span>
-          </p>
-        </div>
-        
-        <!-- Progress Speed Control -->
-        <div class="flex items-center gap-4">
-          <span class="text-sm text-gray-600 dark:text-gray-400">Progress Speed:</span>
-          <div class="flex rounded-lg bg-stone-200 dark:bg-stone-800 p-1" role="radiogroup">
-            <button
-              v-for="speed in progressSpeeds"
-              :key="speed.value"
-              @click="scalingFactor = speed.value"
-              :class="[
-                'px-4 py-1.5 text-sm font-medium rounded-md transition-all',
-                scalingFactor === speed.value
-                  ? 'bg-white dark:bg-stone-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
-              ]"
-              :title="speed.description"
-              role="radio"
-              :aria-checked="scalingFactor === speed.value"
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-6">
+            <p class="text-stone-600 dark:text-stone-400 text-sm">
+              Subject: <span class="font-medium">{{ currentSubject }}</span>
+            </p>
+            <p class="text-stone-600 dark:text-stone-400 text-sm">
+              Elo: <span class="font-medium">{{ currentElo }}</span>
+            </p>
+          </div>
+          
+          <!-- Progress Speed Dropdown -->
+          <div class="relative">
+            <label for="scalingFactor" class="block text-xs text-stone-500 dark:text-stone-400">Progression speed</label>
+            <select
+              v-model.number="scalingFactor"
+              class="mt-1 text-sm px-3 py-1 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-300 dark:border-stone-600 focus:outline-none focus:ring-2 focus:ring-stone-600 dark:focus:ring-stone-400"
             >
-              {{ speed.label }}
-            </button>
+              <option v-for="speed in progressSpeeds" :key="speed.value" :value="speed.value">
+                {{ speed.label }}
+              </option>
+            </select>
           </div>
         </div>
       </div>
 
       <!-- Loading state for initial load only -->
       <div v-if="initialLoading" class="text-center py-12">
-        <p class="text-gray-600 dark:text-gray-400">Loading exercise...</p>
+        <p class="text-stone-600 dark:text-stone-400">Loading exercise...</p>
       </div>
 
       <!-- Exercise content -->
       <div v-else-if="currentExercise">
         <!-- English sentence -->
-        <p class="text-2xl text-gray-700 dark:text-gray-300 font-medium mb-2">
+        <p class="text-2xl text-stone-700 dark:text-stone-300 font-medium mb-2">
           {{ currentExercise.sentence_en }}
         </p>
 
-        <!-- Pattern focus -->
+        <!-- Pattern focus (hints) -->
         <div class="mb-8">
-          <p class="text-xs text-gray-500 dark:text-gray-400">
-            Focus: {{ currentExercise.pattern_focus.join(', ') }}
-          </p>
+          <button
+            @click="showHints = !showHints"
+            class="flex items-center gap-2 text-xs text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-300 transition-colors"
+          >
+            <Icon :name="showHints ? 'lucide:eye' : 'lucide:eye-off'" class="w-3 h-3" />
+            Click to show hint
+          </button>
+
+          <div class="text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-300 transition-colors">
+            <span v-if="showHints">{{ currentExercise.pattern_focus.join(', ') }}</span>
+            <span v-else class="blur-sm select-none">{{ currentExercise.pattern_focus.join(', ') }}</span>
+          </div>
         </div>
 
         <!-- Answer input -->
         <div class="mt-10">
-          <label for="answer" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-100">{{ currentLanguage!.translationLabel }}</label>
+          <label for="answer" class="block text-sm/6 font-medium text-stone-900 dark:text-stone-100">{{ currentLanguage!.translationLabel }}</label>
           <div class="mt-2">
             <textarea 
               id="answer"
@@ -69,7 +70,7 @@
               :disabled="showFeedback"
               @keydown="handleKeydown"
               rows="4" 
-              class="block w-full rounded-md bg-white dark:bg-stone-800 px-3 py-1.5 text-base text-gray-900 dark:text-gray-100 outline outline-1 -outline-offset-1 outline-stone-300 dark:outline-stone-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-stone-600 dark:focus:outline-stone-400 sm:text-sm/6 disabled:bg-stone-50 dark:disabled:bg-stone-700 disabled:text-gray-500 dark:disabled:text-gray-400"
+              class="block w-full rounded-md bg-white dark:bg-stone-800 px-3 py-1.5 text-base text-stone-900 dark:text-stone-100 outline outline-1 -outline-offset-1 outline-stone-300 dark:outline-stone-600 placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-stone-600 dark:focus:outline-stone-400 sm:text-sm/6 disabled:bg-stone-50 dark:disabled:bg-stone-700 disabled:text-stone-500 dark:disabled:text-stone-400"
               placeholder="Type your translation here..."
             ></textarea>
           </div>
@@ -96,14 +97,6 @@
           >
             Next Exercise
           </button>
-          
-          <button 
-            @click="goBack"
-            type="button" 
-            class="rounded-md bg-white dark:bg-stone-800 px-3.5 py-2.5 text-sm font-semibold text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-stone-300 dark:ring-stone-600 hover:bg-stone-50 dark:hover:bg-stone-700"
-          >
-            Change Subject
-          </button>
         </div>
 
         <!-- Feedback section below buttons -->
@@ -117,11 +110,11 @@
             </span>
           </div>
           
-          <p class="text-sm text-gray-700 dark:text-gray-300 mb-2">{{ currentExercise.feedback }}</p>
+          <p class="text-sm text-stone-700 dark:text-stone-300 mb-2">{{ currentExercise.feedback }}</p>
           
           <div v-if="!currentExercise.is_correct" class="mt-3 pt-3 border-t border-stone-200 dark:border-stone-600">
-            <p class="text-sm text-gray-600 dark:text-gray-400">Correct answer:</p>
-            <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ currentExercise.correct_answer }}</p>
+            <p class="text-sm text-stone-600 dark:text-stone-400">Correct answer:</p>
+            <p class="text-sm font-medium text-stone-900 dark:text-stone-100">{{ currentExercise.correct_answer }}</p>
           </div>
         </div>
       </div>
@@ -130,6 +123,10 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+  layout: 'authed'
+})
+
 import type { KataRequest, KataResponse } from '~/types/llm/kata';
 import type { Session } from '~/types/session';
 import { generateSessionId, generateSessionName, saveSession, getSession } from '~/utils/session';
@@ -156,6 +153,7 @@ const previousExercises = ref<Array<{
 }>>([]);
 const sessionId = ref<string>('');
 const scalingFactor = ref(1.0);
+const showHints = ref(false);
 
 // Progress speed options
 const progressSpeeds = [
@@ -317,6 +315,7 @@ const nextExercise = () => {
   showFeedback.value = false;
   userAnswer.value = '';
   nextExerciseData.value = null;
+  showHints.value = false; // Hide hints for new exercise
 };
 
 // Go back to subject selection

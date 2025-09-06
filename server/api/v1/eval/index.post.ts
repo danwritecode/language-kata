@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { verifyJWT, getAuthCookie } from '~/utils/auth'
 
 const config = useRuntimeConfig();
 const openai = new OpenAI({
@@ -6,9 +7,27 @@ const openai = new OpenAI({
 });
 
 
-import { defineEventHandler, readBody } from "h3";
+import { defineEventHandler, readBody, getHeader } from "h3";
 
 export default defineEventHandler(async (event) => {
+  // Check authentication
+  const cookieHeader = getHeader(event, 'cookie')
+  const token = getAuthCookie(cookieHeader)
+  
+  if (!token) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Authentication required'
+    })
+  }
+  
+  const payload = verifyJWT(token, config.jwtSecret)
+  if (!payload) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Invalid or expired token'
+    })
+  }
   const body = await readBody(event);
 
   // Extract previous_exercises, elo_scaling_factor, and target_language from the body

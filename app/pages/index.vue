@@ -7,23 +7,23 @@
       </div>
       
       <div class="text-center">
-        <h1 class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">Language Drilling</h1>
-        <p class="text-lg text-gray-600 dark:text-gray-400 mb-12">Practice translations with adaptive difficulty</p>
+        <h1 class="text-4xl font-bold text-stone-900 dark:text-stone-100 mb-2">Language Drilling</h1>
+        <p class="text-lg text-stone-600 dark:text-stone-400 mb-12">Practice translations with adaptive difficulty</p>
       </div>
 
       <div class="space-y-6">
         <!-- New Session Section -->
         <div>
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Start New Session</h2>
+          <h2 class="text-xl font-semibold text-stone-900 dark:text-stone-100 mb-4">Start New Session</h2>
           <div class="space-y-6">
             <div>
-              <label for="language" class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+              <label for="language" class="block text-sm font-medium text-stone-900 dark:text-stone-100 mb-2">
                 Target Language
               </label>
               <select
                 id="language"
                 v-model="selectedLanguage"
-                class="block w-full rounded-md bg-white dark:bg-stone-800 px-3 py-2 text-base text-gray-900 dark:text-gray-100 outline outline-1 -outline-offset-1 outline-stone-300 dark:outline-stone-600 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-stone-600 dark:focus:outline-stone-400"
+                class="block w-full rounded-md bg-white dark:bg-stone-800 px-3 py-2 text-base text-stone-900 dark:text-stone-100 outline outline-1 -outline-offset-1 outline-stone-300 dark:outline-stone-600 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-stone-600 dark:focus:outline-stone-400"
               >
                 <option v-for="lang in languages" :key="lang.code" :value="lang.code">
                   {{ lang.name }} ({{ lang.nativeName }})
@@ -32,7 +32,7 @@
             </div>
 
             <div>
-              <label for="subject" class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+              <label for="subject" class="block text-sm font-medium text-stone-900 dark:text-stone-100 mb-2">
                 Choose a subject (optional)
               </label>
               <input 
@@ -40,13 +40,13 @@
                 v-model="subject"
                 type="text" 
                 placeholder="e.g., weather, food, daily routine"
-                class="block w-full rounded-md bg-white dark:bg-stone-800 px-3 py-2 text-base text-gray-900 dark:text-gray-100 outline outline-1 -outline-offset-1 outline-stone-300 dark:outline-stone-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-stone-600 dark:focus:outline-stone-400"
+                class="block w-full rounded-md bg-white dark:bg-stone-800 px-3 py-2 text-base text-stone-900 dark:text-stone-100 outline outline-1 -outline-offset-1 outline-stone-300 dark:outline-stone-600 placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-stone-600 dark:focus:outline-stone-400"
               />
-              <p class="mt-2 text-sm text-gray-500">Leave empty for mixed topics</p>
+              <p class="mt-2 text-sm text-stone-500">Leave empty for mixed topics</p>
             </div>
 
             <div>
-              <label for="elo" class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+              <label for="elo" class="block text-sm font-medium text-stone-900 dark:text-stone-100 mb-2">
                 Starting ELO
               </label>
               <div class="flex items-center gap-4">
@@ -59,9 +59,9 @@
                   step="100"
                   class="flex-1"
                 />
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 text-right">{{ startingElo }}</span>
+                <span class="text-sm font-medium text-stone-700 dark:text-stone-300 w-12 text-right">{{ startingElo }}</span>
               </div>
-              <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+              <div class="mt-2 text-xs text-stone-500 dark:text-stone-400">
                 <span v-if="startingElo < 800">Beginner</span>
                 <span v-else-if="startingElo < 1400">Intermediate</span>
                 <span v-else-if="startingElo < 2000">Upper Intermediate</span>
@@ -83,7 +83,7 @@
         <!-- Saved Sessions Section -->
         <ClientOnly>
           <div v-if="savedSessions.length > 0">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Continue Previous Session</h2>
+            <h2 class="text-xl font-semibold text-stone-900 dark:text-stone-100 mb-4">Continue Previous Session</h2>
             <div class="space-y-3">
               <div 
                 v-for="session in savedSessions" 
@@ -93,8 +93,8 @@
                 <div class="flex-1 cursor-pointer" @click="continueSession(session)">
                   <div class="flex items-center gap-3">
                     <div>
-                      <p class="font-medium text-gray-900 dark:text-gray-100">{{ session.name }}</p>
-                      <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                      <p class="font-medium text-stone-900 dark:text-stone-100">{{ session.name }}</p>
+                      <div class="flex items-center gap-4 text-sm text-stone-500 dark:text-stone-400">
                         <span>ELO: {{ session.currentElo }}</span>
                         <span>{{ session.exercisesCompleted }} exercises</span>
                         <span>{{ formatRelativeTime(session.lastUpdated) }}</span>
@@ -104,7 +104,7 @@
                 </div>
                 <button 
                   @click="deleteSessionConfirm(session.id)"
-                  class="ml-3 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                  class="ml-3 text-stone-400 dark:text-stone-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                   title="Delete session"
                 >
                   <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -122,6 +122,10 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+  layout: 'authed'
+})
+
 import type { Session } from '~/types/session';
 import { getAllSessions, deleteSession } from '~/utils/session';
 import { languages, defaultLanguage } from '~/utils/languages';
